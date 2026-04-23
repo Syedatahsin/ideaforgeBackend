@@ -11,7 +11,7 @@ export default {
   app_url: process.env.APP_URL || 'http://localhost:3000',
 
   // Better Auth
-  better_auth_url: process.env.BETTER_AUTH_URL || 'http://localhost:5000',
+  better_auth_url: process.env.BETTER_AUTH_URL || 'http://localhost:5000/api/auth',
   better_auth_secret: process.env.BETTER_AUTH_SECRET,
 
   // Email (Nodemailer)

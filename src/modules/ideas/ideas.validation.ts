@@ -9,6 +9,7 @@ export const createIdeaSchema = z.object({
     solution: z.string().min(20),
     description: z.string().min(50),
     price: z.number().min(0).optional().default(0),
+    tags: z.array(z.string()).optional(),
   }),
 });
 
@@ -20,6 +21,7 @@ export const updateIdeaSchema = z.object({
     solution: z.string().min(20).optional(),
     description: z.string().min(50).optional(),
     price: z.number().min(0).optional(),
+    tags: z.array(z.string()).optional(),
   }),
 });
 

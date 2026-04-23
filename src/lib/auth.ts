@@ -167,10 +167,10 @@ export const auth = betterAuth({
   // --- ADVANCED COOKIE CONFIG ---
   advanced: {
     cookiePrefix: "ideaforge-auth",
-    useSecureCookies: true,
+    // useSecureCookies: process.env.NODE_ENV === "production",
     defaultCookieAttributes: {
-      sameSite: "none",
-      secure: true,
+      sameSite: "lax",
+      // secure: process.env.NODE_ENV === "production",
       path: "/",
     },
   },
@@ -181,8 +181,8 @@ export const auth = betterAuth({
       maxAge: 5 * 60,
     },
     cookieOptions: {
-      sameSite: "none",
-      secure: true,
+      sameSite: "lax",
+      // secure: process.env.NODE_ENV === "production",
     },
   },
 });

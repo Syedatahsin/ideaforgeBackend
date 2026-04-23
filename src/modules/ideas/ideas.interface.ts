@@ -7,6 +7,7 @@ export interface IIdeaCreate {
   solution: string;
   description: string;
   price?: number;
+  tags?: string[];
 }
 
 export interface IIdeaUpdate {
@@ -16,6 +17,7 @@ export interface IIdeaUpdate {
   solution?: string;
   description?: string;
   price?: number;
+  tags?: string[];
 }
 
 export interface IIdeaStatusUpdate {
@@ -36,6 +38,7 @@ export interface IIdeaResponse {
   isPaid: boolean;
   status: IdeaStatus;
   rejectFeedback?: string | null;
+  tags: string[];
   viewCount: number;
   createdAt: Date;
   updatedAt: Date;

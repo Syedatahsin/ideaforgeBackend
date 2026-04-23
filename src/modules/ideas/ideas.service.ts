@@ -74,6 +74,7 @@ class IdeaService {
 
   /**
    * Get all approved ideas with optional search and category filters.
+   * Search matches against: title, description, tags, and creator name.
    */
   async getAllApprovedIdeas(filters: { searchTerm?: string; categoryId?: string } = {}) {
     const { searchTerm, categoryId } = filters;
@@ -90,10 +91,16 @@ class IdeaService {
       where.OR = [
         { title: { contains: searchTerm, mode: 'insensitive' } },
         { description: { contains: searchTerm, mode: 'insensitive' } },
+        { tags: { hasSome: [searchTerm] } }, // Exact tag match (case sensitive usually in Prisma hasSome)
+        // For partial tag match, we'd need another approach, but Prisma hasSome is common for arrays.
+        // However, user asked for "partial keyword matches within any of these fields".
+        // Since tags is an array, we'll also check if any tag contains the keyword.
+        { tags: { has: searchTerm } },
+        { user: { name: { contains: searchTerm, mode: 'insensitive' } } },
       ];
     }
 
-    return await prisma.idea.findMany({
+    const ideas = await prisma.idea.findMany({
       where,
       include: {
         category: true,
@@ -102,6 +109,48 @@ class IdeaService {
         },
       },
       orderBy: { createdAt: 'desc' },
+    });
+
+    if (!searchTerm) return ideas;
+
+    // Optional Enhancement: Sort by relevance
+    // Priority: Title > Tags > Description > Creator Name
+    const keyword = searchTerm.toLowerCase();
+    
+    return ideas.sort((a, b) => {
+      const getRelevance = (idea: any) => {
+        let score = 0;
+        const title = idea.title.toLowerCase();
+        const description = idea.description.toLowerCase();
+        const tags = (idea.tags || []).map((t: string) => t.toLowerCase());
+        const creatorName = (idea.user?.name || "").toLowerCase();
+
+        // 1. Title (Highest Priority)
+        if (title.includes(keyword)) score += 100;
+        if (title === keyword) score += 50; // Exact match bonus
+
+        // 2. Tags
+        if (tags.some((t: string) => t.includes(keyword))) score += 80;
+        if (tags.includes(keyword)) score += 40; // Exact match bonus
+
+        // 3. Description
+        if (description.includes(keyword)) score += 60;
+
+        // 4. Creator Name
+        if (creatorName.includes(keyword)) score += 40;
+
+        return score;
+      };
+
+      const scoreA = getRelevance(a);
+      const scoreB = getRelevance(b);
+
+      if (scoreA !== scoreB) {
+        return scoreB - scoreA; // Descending by score
+      }
+
+      // Then by newest
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }
 

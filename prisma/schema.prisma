@@ -114,6 +114,7 @@ model Idea {
   isPaid           Boolean    @default(false)
   status           IdeaStatus @default(UNDER_REVIEW)
   rejectFeedback   String?
+  tags             String[]   @default([])
   viewCount        Int        @default(0)
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt

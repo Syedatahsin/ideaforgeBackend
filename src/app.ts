@@ -52,11 +52,12 @@ app.get("/", (req, res) => {
   res.send("ideaforge API is running...");
 });
 
-app.use('/api', router);
-
 // --- BETTER AUTH HANDLER ---
-// Using *any for Express 5 compatibility (while keeping your requested logic)
+// Must come BEFORE /api router to handle /api/auth requests correctly
 app.all("/api/auth/*splat", toNodeHandler(auth));
+
+// --- ROUTES ---
+app.use('/api', router);
 
 // --- ERROR HANDLING ---
 app.use(notFound);
